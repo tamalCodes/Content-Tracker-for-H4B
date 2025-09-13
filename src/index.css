@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+body {
+  background-color: #1a1b1b;
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+textarea,
+div {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+textarea::-webkit-scrollbar,
+div::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+@theme {
+  --font-outfit: "Outfit", sans-serif;
+}
+
+.react-datepicker {
+  margin-left: 100px;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.contentbox:hover {
+  -webkit-box-shadow: 0px 0px 45px -20px rgba(255, 23, 23, 1);
+  -moz-box-shadow: 0px 0px 45px -20px rgba(255, 23, 23, 1);
+  box-shadow: 0px 0px 45px -20px rgba(255, 23, 23, 1);
+  transition: 0.3s ease-in-out all;
+}
+
+.contentbox {
+  transition: 0.3s ease-in-out all;
+}
