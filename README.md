@@ -1,4 +1,4 @@
-# H4B Tracker — Social Content Scheduling for Teams
+# Content-Tracker, for Hack4Bengal
 
 A lightweight, mobile-first planner to align **content**, **marketing**, and **admin** teams on _what to post, when, and with which assets_. Think “Google Calendar for social posts,” built in-house to keep timelines, copy, and media in one place.
 
