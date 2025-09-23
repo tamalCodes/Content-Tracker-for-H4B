@@ -1,33 +1,57 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import js from "@eslint/js";
+import importPlugin from "eslint-plugin-import";
+import react from "eslint-plugin-react";
+import globals from "globals";
 
 export default [
-  { ignores: ['dist'] },
   {
-    files: ['**/*.{js,jsx}'],
+    ignores: ["dist", "vite.config.ts"],
+  },
+  {
+    files: ["**/*.{js,jsx}"],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: "latest",
       globals: globals.browser,
       parserOptions: {
-        ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
-        sourceType: 'module',
+        sourceType: "module",
       },
     },
+    settings: { react: { version: "19.0" } },
     plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
+      react,
+      import: importPlugin,
     },
     rules: {
       ...js.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      ...react.configs.recommended.rules,
+      ...react.configs["jsx-runtime"].rules,
+
+      "react/jsx-no-target-blank": "off",
+      "react/prop-types": "off",
+
+      "no-unused-vars": "error",
+      "no-undef": "error",
+      eqeqeq: ["error", "always"],
+      "no-var": "error",
+      "prefer-const": "error",
+      "no-use-before-define": ["error", { functions: false, classes: true }],
+      "no-multiple-empty-lines": ["error", { max: 1 }],
+      "no-trailing-spaces": "error",
+      "no-lonely-if": "error",
+      "no-else-return": ["error", { allowElseIf: false }],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "array-callback-return": "error",
+      curly: ["error", "all"],
+      "object-curly-spacing": ["error", "always"],
+      "key-spacing": ["error", { beforeColon: false, afterColon: true }],
+      "semi-spacing": ["error", { before: false, after: true }],
+      "no-fallthrough": "error",
+      "default-case": "error",
+      yoda: ["error", "never"],
+      "import/prefer-default-export": "error",
+      "no-empty-function": "error",
+      "require-await": "error",
     },
   },
-]
+];

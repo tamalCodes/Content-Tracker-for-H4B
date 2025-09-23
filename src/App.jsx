@@ -1,5 +1,5 @@
-import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import AuthPage from "./pages/Auth";
 import CreatePost from "./pages/CreatePost";
 import Home from "./pages/Home";
 import ViewPost from "./pages/ViewPost";
@@ -19,6 +19,7 @@ const App = () => {
           />
           <Route exact path="/edit" element={<CreatePost mode={"edit"} />} />
           <Route exact path="/view" element={<ViewPost />} />
+          <Route path="/auth" element={<AuthPage />} />
         </Routes>
       </main>
     </Router>

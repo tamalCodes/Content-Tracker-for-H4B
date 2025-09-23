@@ -8,7 +8,7 @@ A lightweight, mobile-first planner to align **content**, **marketing**, and **a
 - **Rich content editor**: Draft copy for different channels; attach notes and variants.
 - **Media workflow**: Upload and link assets stored in **Google Drive**; teammates can download the final files for posting.
 - **Team visibility**: Daily view to see “what’s scheduled today” at a glance.
-- **Responsive UI**: Works cleanly on mobile for on-the-go posting.
+- **Responsive UI**: Works cleanly on mobile for on-the-go posting.********
 
 ## Tech Stack
 
