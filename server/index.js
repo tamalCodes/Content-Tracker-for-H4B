@@ -38,6 +38,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/content", require("./routes/Content"));
+app.use("/auth", require("./routes/Auth"));
 
 async function authorize() {
   const jwtClient = new google.auth.JWT(

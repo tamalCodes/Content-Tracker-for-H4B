@@ -1,3 +1,4 @@
+import { checkEmailStatus } from "@api/auth";
 import { isGenericDomain, isValidEmail } from "@utils/auth/authUtils";
 import { useState } from "react";
 import OAuthGoogleButton from "./OAuthGoogleButton";
@@ -10,24 +11,41 @@ export default function Landing({ onResolved }) {
   const disabled = !isValidEmail(email) || loading;
 
   const handleContinue = async () => {
+    const normalizedEmail = email.trim();
     setErr(null);
-    if (!isValidEmail(email)) {
+    if (!isValidEmail(normalizedEmail)) {
       setErr("Enter a valid email");
       return;
     }
     setLoading(true);
 
     try {
-      // 1) Call your backend status check here:
-      // const { exists } = await api.statusCheck(email);
-      // if (exists) return onResolved({ name: "existing_password", email });
+      const data = await checkEmailStatus(normalizedEmail);
+      const exists =
+        data?.exists ?? data?.userExists ?? data?.hasAccount ?? false;
 
-      // 2) If not existing user, branch by domain type:
-      if (isGenericDomain(email)) {
-        onResolved({ name: "signup_generic", email });
-      } else {
-        onResolved({ name: "signup_org", email });
+      if (exists) {
+        onResolved({ name: "existing_password", email: normalizedEmail });
+        return;
       }
+
+      const suggestedFlow =
+        data?.nextStep ||
+        data?.flow ||
+        data?.type ||
+        (isGenericDomain(normalizedEmail) ? "signup_generic" : "signup_org");
+
+      const nextStep = ["signup_generic", "signup_org"].includes(suggestedFlow)
+        ? suggestedFlow
+        : suggestedFlow === "generic"
+          ? "signup_generic"
+          : suggestedFlow === "org"
+            ? "signup_org"
+            : isGenericDomain(normalizedEmail)
+              ? "signup_generic"
+              : "signup_org";
+
+      onResolved({ name: nextStep, email: normalizedEmail });
     } catch (e) {
       setErr(e?.message || "Something went wrong");
     } finally {
@@ -79,7 +97,7 @@ export default function Landing({ onResolved }) {
             disabled={disabled}
             className="h-11 cursor-pointer disabled:cursor-not-allowed rounded-xl bg-neutral-100 text-neutral-900 font-medium disabled:opacity-50  hover:bg-white focus:outline-none "
           >
-            {loading ? "Checking…" : "Continue"}
+            {loading ? "Checking..." : "Continue"}
           </button>
         </form>
       </div>

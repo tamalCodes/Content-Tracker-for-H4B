@@ -4,10 +4,8 @@ import Landing from "@components/auth/Landing";
 import SignupGeneric from "@components/auth/SignupGeneric";
 import SignupOrg from "@components/auth/SignupOrg";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function AuthPage() {
-  const navigate = useNavigate();
   const [step, setStep] = useState({ name: "landing" });
 
   return (
