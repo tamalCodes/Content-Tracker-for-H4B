@@ -22,7 +22,7 @@ createRoot(document.getElementById("root")).render(
         pauseOnFocusLoss={false}
         draggable
         pauseOnHover={false}
-        theme={localStorage.getItem("theme") === "dark" ? "dark" : "light"}
+        theme={"dark"}
         toastStyle={{ borderRadius: "1rem" }}
         closeButton={false}
         className={"font-outfit"}

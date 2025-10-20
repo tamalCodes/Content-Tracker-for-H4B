@@ -204,3 +204,15 @@ exports.createEntry = async (req, res) => {
     return res.status(500).json({ message: "Failed to create account" });
   }
 };
+
+/**
+ * Handles client logout requests. JWTs are stateless, so we simply acknowledge.
+ */
+exports.logoutUser = async (_req, res) => {
+  try {
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Auth:logoutUser error:", error);
+    return res.status(500).json({ message: "Failed to logout" });
+  }
+};

@@ -4,6 +4,7 @@ export const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const AUTH_EMAIL_STATUS_API = `${BASE_URL}/auth/email-status`;
 export const AUTH_LOGIN_API = `${BASE_URL}/auth/login`;
 export const AUTH_ENTRY_API = `${BASE_URL}/auth/entry`;
+export const AUTH_LOGOUT_API = `${BASE_URL}/auth/logout`;
 
 export const ADD_CONTENT_API = `${BASE_URL}/content/create`;
 export const UPDATE_CONTENT_API = `${BASE_URL}/content/update`;

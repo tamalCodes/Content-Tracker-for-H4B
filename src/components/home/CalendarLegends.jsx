@@ -1,5 +1,3 @@
-import React from "react";
-
 const CalendarLegends = () => {
   return (
     <div className="font-outfit pt-10">
