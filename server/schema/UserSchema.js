@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
       enum: ["generic", "org"],
       default: "generic",
     },
+    organizationName: {
+      type: String,
+      trim: true,
+    },
     status: {
       type: String,
       enum: ["active", "invited"],
