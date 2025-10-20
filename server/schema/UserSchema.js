@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "invited"],
       default: "active",
     },
+    resetTokenHash: {
+      type: String,
+      select: false,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      select: false,
+    },
   },
   { timestamps: true }
 );

@@ -5,6 +5,8 @@ export const AUTH_EMAIL_STATUS_API = `${BASE_URL}/auth/email-status`;
 export const AUTH_LOGIN_API = `${BASE_URL}/auth/login`;
 export const AUTH_ENTRY_API = `${BASE_URL}/auth/entry`;
 export const AUTH_LOGOUT_API = `${BASE_URL}/auth/logout`;
+export const AUTH_FORGOT_PASSWORD_API = `${BASE_URL}/auth/forgot-password`;
+export const AUTH_RESET_PASSWORD_API = `${BASE_URL}/auth/reset-password`;
 
 export const ADD_CONTENT_API = `${BASE_URL}/content/create`;
 export const UPDATE_CONTENT_API = `${BASE_URL}/content/update`;

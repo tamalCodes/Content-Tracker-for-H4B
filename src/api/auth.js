@@ -2,8 +2,10 @@ import { apiConnector } from "./apiConnector";
 import {
   AUTH_EMAIL_STATUS_API,
   AUTH_ENTRY_API,
-  AUTH_LOGOUT_API,
+  AUTH_FORGOT_PASSWORD_API,
   AUTH_LOGIN_API,
+  AUTH_LOGOUT_API,
+  AUTH_RESET_PASSWORD_API,
 } from "./apiList";
 
 const isSuccessStatus = (status) => status >= 200 && status < 300;
@@ -54,6 +56,31 @@ export const logoutUser = async (token) => {
 
   if (!isSuccessStatus(response.status)) {
     throw new Error(response.data?.message || "Failed to logout");
+  }
+
+  return response.data;
+};
+
+export const requestPasswordReset = async (email) => {
+  const response = await apiConnector("POST", AUTH_FORGOT_PASSWORD_API, {
+    email,
+  });
+
+  if (!isSuccessStatus(response.status)) {
+    throw new Error(response.data?.message || "Failed to request reset");
+  }
+
+  return response.data;
+};
+
+export const resetPassword = async ({ token, password }) => {
+  const response = await apiConnector("POST", AUTH_RESET_PASSWORD_API, {
+    token,
+    password,
+  });
+
+  if (!isSuccessStatus(response.status)) {
+    throw new Error(response.data?.message || "Failed to reset password");
   }
 
   return response.data;
