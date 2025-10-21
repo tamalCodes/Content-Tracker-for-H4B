@@ -1,5 +1,13 @@
+const buildGoogleUrl = () => {
+  const baseUrl = import.meta.env.VITE_BASE_URL || "";
+  const normalizedBase = baseUrl.replace(/\/$/, "");
+  return `${normalizedBase}/auth/google`;
+};
+
 export default function OAuthGoogleButton() {
-  const onGoogle = () => (window.location.href = "/api/auth/google"); // replace later
+  const onGoogle = () => {
+    window.location.href = buildGoogleUrl();
+  };
   return (
     <button
       onClick={onGoogle}

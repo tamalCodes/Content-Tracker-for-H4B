@@ -34,10 +34,23 @@ export default function ExistingPassword({ email, onBack }) {
         throw new Error(data?.message || "Authentication failed");
       }
 
-      const user = data?.user ?? data?.profile ?? null;
+      const rawUser = data?.user ?? data?.profile ?? null;
+      const normalizedAvatarUrl =
+        typeof rawUser?.avatarUrl === "string"
+          ? rawUser.avatarUrl.toLowerCase()
+          : "";
+      const sanitizedUser =
+        rawUser && typeof rawUser === "object"
+          ? {
+              ...rawUser,
+              avatarUrl: normalizedAvatarUrl.includes("googleusercontent.com")
+                ? null
+                : rawUser.avatarUrl ?? null,
+            }
+          : rawUser;
 
-      dispatch(setCredentials({ token, user }));
-      persistCredentials({ token, user });
+      dispatch(setCredentials({ token, user: sanitizedUser }));
+      persistCredentials({ token, user: sanitizedUser });
       toast.success("Signed in successfully");
 
       const redirectPath =

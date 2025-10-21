@@ -3,8 +3,17 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const User = require("../schema/UserSchema");
 
+const { google } = require("googleapis");
+
 const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "7d";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const SERVER_BASE_URL = process.env.SERVER_BASE_URL || "http://localhost:5000";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI =
+  process.env.GOOGLE_REDIRECT_URI ||
+  `${SERVER_BASE_URL.replace(/\/$/, "")}/auth/google/callback`;
 
 const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email || "").trim());
@@ -57,6 +66,28 @@ const isStrongPassword = (pwd = "") => {
   return min && upper && lower && digit && special;
 };
 
+const ensureGoogleConfig = () => {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    throw new Error(
+      "Google OAuth configuration is missing. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET."
+    );
+  }
+};
+
+const createOAuthClient = () => {
+  ensureGoogleConfig();
+  return new google.auth.OAuth2(
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_REDIRECT_URI
+  );
+};
+
+const randomPasswordHash = async () => {
+  const randomSecret = crypto.randomBytes(32).toString("hex");
+  return bcrypt.hash(randomSecret, BCRYPT_SALT_ROUNDS);
+};
+
 const toSafeUser = (user) => {
   if (!user) {
     return null;
@@ -67,6 +98,8 @@ const toSafeUser = (user) => {
     email: user.email,
     accountType: user.accountType,
     organizationName: user.organizationName || null,
+    name: user.name || null,
+    avatarUrl: user.avatarUrl || null,
     status: user.status,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
@@ -219,6 +252,117 @@ exports.logoutUser = async (_req, res) => {
   } catch (error) {
     console.error("Auth:logoutUser error:", error);
     return res.status(500).json({ message: "Failed to logout" });
+  }
+};
+
+/**
+ * Initiates the Google OAuth flow by redirecting the user to Google.
+ */
+exports.startGoogleAuth = async (_req, res) => {
+  try {
+    const oauth2Client = createOAuthClient();
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: "offline",
+      prompt: "consent",
+      scope: [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+      ],
+    });
+
+    return res.redirect(authUrl);
+  } catch (error) {
+    console.error("Auth:startGoogleAuth error:", error);
+    return res
+      .status(500)
+      .json({ message: "Google authentication is not configured correctly" });
+  }
+};
+
+/**
+ * Handles the Google OAuth callback, issuing a JWT and redirecting back to the client.
+ */
+exports.handleGoogleCallback = async (req, res) => {
+  try {
+    const { code } = req.query || {};
+
+    if (!code) {
+      return res.status(400).json({ message: "Missing OAuth code" });
+    }
+
+    const oauth2Client = createOAuthClient();
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    const oauth2 = google.oauth2({
+      auth: oauth2Client,
+      version: "v2",
+    });
+
+    const { data } = await oauth2.userinfo.get();
+    const email = data?.email;
+    const name = data?.name;
+    const picture = data?.picture;
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ message: "Unable to retrieve email from Google" });
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+    let user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      const domainIsGeneric = isGenericDomain(normalizedEmail);
+      const passwordHash = await randomPasswordHash();
+
+      user = await User.create({
+        email: normalizedEmail,
+        passwordHash,
+        accountType: domainIsGeneric ? "generic" : "org",
+        organizationName: domainIsGeneric
+          ? null
+          : normalizedEmail.split("@")[1],
+        name: name || null,
+        avatarUrl: picture || null,
+        status: "active",
+      });
+    }
+
+    let shouldUpdate = false;
+    if (name && user.name !== name) {
+      user.name = name;
+      shouldUpdate = true;
+    }
+    if (picture && user.avatarUrl !== picture) {
+      user.avatarUrl = picture;
+      shouldUpdate = true;
+    }
+    if (shouldUpdate) {
+      await user.save();
+    }
+
+    const token = jwt.sign(
+      { sub: user._id.toString(), email: user.email },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRY }
+    );
+
+    const safeUser = toSafeUser(user);
+    const payload = Buffer.from(JSON.stringify({ ...safeUser, picture })).toString(
+      "base64"
+    );
+
+    const redirectUrl = new URL("/auth", FRONTEND_URL);
+    redirectUrl.searchParams.set("provider", "google");
+    redirectUrl.searchParams.set("token", token);
+    redirectUrl.searchParams.set("user", payload);
+
+    return res.redirect(redirectUrl.toString());
+  } catch (error) {
+    console.error("Auth:handleGoogleCallback error:", error);
+    return res.status(500).json({ message: "Failed to authenticate with Google" });
   }
 };
 

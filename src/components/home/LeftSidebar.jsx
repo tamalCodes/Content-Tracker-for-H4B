@@ -20,16 +20,21 @@ const LeftSidebar = () => {
   const [loggingOut, setLoggingOut] = useState(false);
 
   const { displayName, initial, emailLabel } = useMemo(() => {
-    const primary =
-      user?.organizationName?.trim() ||
-      user?.name?.trim?.() ||
-      user?.email?.split("@")[0] ||
-      "User";
-    const derivedInitial = primary?.charAt(0)?.toUpperCase() || "U";
+    const organization = user?.organizationName?.trim();
+    const fullName = user?.name?.trim?.();
+    const email = user?.email?.trim?.();
+    const firstName = fullName?.split(/\s+/)[0] || "";
+    const emailHandle = email?.split("@")[0] || "";
+    const derivedInitial =
+      firstName?.charAt(0)?.toUpperCase() ||
+      emailHandle?.charAt(0)?.toUpperCase() ||
+      organization?.charAt(0)?.toUpperCase() ||
+      "U";
+    const primaryLabel = organization || fullName || emailHandle || "User";
     return {
-      displayName: primary,
+      displayName: primaryLabel,
       initial: derivedInitial,
-      emailLabel: user?.email || "",
+      emailLabel: email || "",
     };
   }, [user]);
 
@@ -78,9 +83,17 @@ const LeftSidebar = () => {
 
       <div className="mt-auto">
         <div className="flex items-center gap-3 rounded-2xl border border-neutral-800 bg-[#1c1c1c] px-3 py-3">
-          <div className="flex h-8 w-8 min-h-8 min-w-8 items-center justify-center rounded-full bg-neutral-700 text-base font-semibold uppercase text-neutral-100">
-            {initial}
-          </div>
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={displayName}
+              className="h-9 w-9 min-h-9 min-w-9 rounded-full object-cover"
+            />
+          ) : (
+            <div className="flex h-8 w-8 min-h-8 min-w-8 items-center justify-center rounded-full bg-neutral-700 text-base font-semibold uppercase text-neutral-100">
+              {initial}
+            </div>
+          )}
           <div className="flex flex-col flex-1">
             <span className="text-sm font-medium text-neutral-100">
               {displayName}
